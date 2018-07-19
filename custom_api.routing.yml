@@ -1,0 +1,7 @@
+custom.api.page:
+  path: '/page_json/{apiKey}/{node}'
+  defaults:
+    _controller:  '\Drupal\custom_api\Controller\ApiControl::content'
+  requirements:
+    apiKey: '[a-zA-Z0-9]+'
+    _permission: 'access content'

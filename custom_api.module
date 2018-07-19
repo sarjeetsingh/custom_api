@@ -1,0 +1,62 @@
+<?php
+
+/**
+ * @file
+ * Module for custom_api module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function custom_api_form_system_site_information_settings_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $site_config = \Drupal::config('system.site');
+  $form['site_key'] = [
+    '#type' => 'details',
+    '#title' => t('Site API Key details'),
+    '#open' => TRUE,
+  ];
+  $form['site_key']['siteapikey'] = [
+    '#type' => 'textfield',
+    '#title' => t('Site API Key'),
+    '#default_value' => $site_config->get('siteapikey') ? $site_config->get('siteapikey') : t('No API Key yet'),
+    '#description' => t('Please enter Site API Key. It should be alphanumeric value only.'),
+  ];
+  // Validation for api key.
+  $form['#validate'][] = 'custom_api_key_validate';
+  $form['actions']['submit']['#value'] = t('Update Configuration');
+  // Add custom submit handler.
+  $form['#submit'][] = 'custom_api_key_submit';
+}
+
+/**
+ * Implementation of form_validate.
+ *
+ * Validate Site API Key.
+ */
+function custom_api_key_validate($form, FormStateInterface &$form_state) {
+  if (($value = $form_state->getValue('siteapikey')) && $value !== 'No API Key yet') {
+    if (!preg_match("/^[a-zA-Z0-9]*$/", $value)) {
+      $form_state->setErrorByName('siteapikey', t("Please enter alphanumeric value only for Site API Key."));
+    }
+  }
+}
+
+/**
+ * Submit handler for 'system_site_information_settings' form.
+ *
+ * @see: custom_api_form_system_site_information_settings_alter().
+ */
+function custom_api_key_submit($form, FormStateInterface $form_state) {
+  $key = $form_state->getValue('siteapikey');
+  if ($key != 'No API Key yet') {
+    \Drupal::configFactory()->getEditable('system.site')
+      // Set the submitted configuration setting.
+      ->set('siteapikey', $key)
+      ->save();
+    if ($key != '') {
+      drupal_set_message(t('Site API Key has been saved with "@key".', ['@key' => $key]));
+    }
+  }
+}

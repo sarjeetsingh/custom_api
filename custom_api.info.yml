@@ -1,0 +1,9 @@
+name: Custom Api
+type: module
+description: 'Custom api module provide webservice (json) for page type nodes '
+# core: 8.x
+dependencies:
+  - node
+# Information added by Drupal.org packaging script on 2018-07-19
+package: Custom
+core: '8.x'
